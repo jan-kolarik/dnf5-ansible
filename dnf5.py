@@ -6,8 +6,8 @@ import libdnf5
 # Usecase: list all packages installed on the system
 # python3 dnf5.py list installed
 #
-# Usecase: list all packages installed on the system
-# python3 dnf5.py list installed
+# Usecase: list all packages matching the given specs
+# python3 dnf5.py list rpm zlib*
 #
 # Usecase: install the 'gdk-pixbuf2-devel' package
 # python3 dnf5.py ensure present gdk-pixbuf2-devel
