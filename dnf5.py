@@ -1,6 +1,20 @@
 import sys
 import libdnf5
 
+# TODO DNF5 not-implemented features:
+# - some ensure modifiers
+#   - allow_downgrade
+# - autoremove
+#   - listing unneeded pkgs not implemented yet
+# - cache update
+#   - automatic in DNF5
+#   - any modification needed for the Ansible purposes?
+
+# TODO examples:
+# - configuration options like enable-repo
+# - limit upgrade packages only to bugfix / security ones
+# - update_only
+
 # DNF5 example usecases for the Ansible module
 #
 # Usecase: list all packages installed on the system
@@ -19,6 +33,13 @@ class Dnf5AnsibleUsecases:
     def __init__(self):
         self.base = self._prepare_base()
         self._prepare_repos()
+    
+    def _is_spec_installed(self, spec):
+        settings = libdnf5.base.ResolveSpecSettings()
+        query = libdnf5.rpm.PackageQuery(self.base)
+        query.filter_installed()
+        match, nevra = query.resolve_pkg_spec(spec, settings, True)
+        return match
     
     # Note: Downloading part to be simplified
     # See https://github.com/rpm-software-management/dnf5/issues/277
@@ -127,7 +148,10 @@ class Dnf5AnsibleUsecases:
         elif cmd == 'absent':
             for spec in specs:
                 goal.add_remove(spec)
-        
+
+        # Apply behavior modifiers like this:
+        # goal.set_allow_erasing(True)
+
         transaction = goal.resolve()
         self._do_transaction(transaction)
 
