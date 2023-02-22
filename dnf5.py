@@ -53,8 +53,18 @@ class Dnf5AnsibleUsecases:
         # transaction.set_user_id(12345)
         transaction.set_description("Ansible")
 
-        # Execute the transaction
-        transaction.run()
+        # Execute the actual transaction
+        result = transaction.run()
+
+        # Print any problems during transaction execution
+        if result == libdnf5.base.Transaction.TransactionRunResult_SUCCESS:
+            print('Transaction completed successfully.')
+        else:
+            print(f'Transaction was not successful: {transaction.transaction_result_to_string(result)}')
+            if transaction.get_transaction_problems():
+                print('Following issues happened when executing the transaction:')
+                for log in transaction.get_transaction_problems():
+                    print(log)
 
     def _package_dict(self, package):
         result = {
@@ -190,7 +200,18 @@ class Dnf5AnsibleUsecases:
         # Apply behavior modifiers like this:
         # goal.set_allow_erasing(True)
 
+        # Resolve the transaction goal
         transaction = goal.resolve()
+
+        # Print any problems during transaction resolving
+        if transaction.get_problems():
+            print('Following issues happened when resolving the transaction:')
+            for log in transaction.get_resolve_logs_as_strings():
+                print(log)
+        else:
+            print('Transaction resolved correctly.')
+
+        # Execute the transaction
         self._do_transaction(transaction)
 
 
