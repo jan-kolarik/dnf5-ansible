@@ -211,6 +211,16 @@ class Dnf5AnsibleUsecases:
         else:
             print('Transaction resolved correctly.')
 
+        # Print transaction summary
+        ts_pkgs = transaction.get_transaction_packages()
+        if ts_pkgs:
+            print('Transaction summary:')
+            for pkg in ts_pkgs:
+                print(f'Package "{pkg.get_package().get_nevra()}". '
+                      f'Action "{libdnf5.base.transaction.transaction_item_action_to_string(pkg.get_action())}".')
+        else:
+            print('Transaction is empty.')
+
         # Execute the transaction
         self._do_transaction(transaction)
 
