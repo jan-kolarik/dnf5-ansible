@@ -137,7 +137,7 @@ class Dnf5AnsibleUsecases:
         sack.create_repos_from_system_configuration()
 
         # Enable/disable repos here like this:
-        self._disable_repos(['updates'])
+        # self._disable_repos(['updates'])
         # self._enable_repos(list)
 
         sack.update_and_load_enabled_repos(True)
