@@ -99,7 +99,7 @@ class Dnf5AnsibleUsecases:
         base = libdnf5.base.Base()
 
         # Change config file path like this:
-        # base.config_file_path().set('path')
+        # base.get_config().config_file_path().set('path')
 
         base.load_config_from_file()
 
