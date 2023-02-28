@@ -112,13 +112,13 @@ class Dnf5AnsibleUsecases:
 
     def _enable_repos(self, repos):
         repo_query = libdnf5.repo.RepoQuery(self.base)
-        repo_query.filter_id(repos)
+        repo_query.filter_id(repos, libdnf5.common.QueryCmp_IGLOB)
         for repo in repo_query:
             repo.enable()
 
     def _disable_repos(self, repos):
         repo_query = libdnf5.repo.RepoQuery(self.base)
-        repo_query.filter_id(repos)
+        repo_query.filter_id(repos, libdnf5.common.QueryCmp_IGLOB)
         for repo in repo_query:
             repo.disable()
 
@@ -137,8 +137,9 @@ class Dnf5AnsibleUsecases:
         sack.create_repos_from_system_configuration()
 
         # Enable/disable repos here like this:
-        # self._disable_repos(['updates'])
-        # self._enable_repos(list)
+        # self._disable_repos('*')
+        # self._disable_repos(['fedora', 'updates'])
+        # self._enable_repos('fedora')
 
         sack.update_and_load_enabled_repos(True)
 
