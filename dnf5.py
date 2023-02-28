@@ -28,10 +28,18 @@ import libdnf5
 # Usecase: update the 'zlib' package
 # python3 dnf5.py ensure latest zlib
 
+
 class Dnf5AnsibleUsecases:
     def __init__(self):
+        # TODO: To be improved?
+        # If callbacks objects are defined inside the local functions,
+        # they are garbage collected when going out of the scope.
+        # Therefore using this helper container...
+        self.callbacks = set()
         self.base = self._prepare_base()
         self._prepare_repos()
+        # Add download callbacks like this:
+        # self._add_downloader_callbacks()
 
     def _is_spec_installed(self, spec):
         settings = libdnf5.base.ResolveSpecSettings()
@@ -40,9 +48,28 @@ class Dnf5AnsibleUsecases:
         match, nevra = query.resolve_pkg_spec(spec, settings, True)
         return match
 
+    def _add_repos_callbacks(self):
+        repo_query = libdnf5.repo.RepoQuery(self.base)
+        repo_query.filter_enabled(True)
+        for repo in repo_query:
+            callbacks = RepoCallbacks(repo.get_id())
+            self.callbacks.add(callbacks)
+            repo.set_callbacks(libdnf5.repo.RepoCallbacksUniquePtr(callbacks))
+
+    def _add_downloader_callbacks(self):
+        downloader_callbacks = PackageDownloadCallbacks()
+        self.callbacks.add(downloader_callbacks)
+        self.base.set_download_callbacks(libdnf5.repo.DownloadCallbacksUniquePtr(downloader_callbacks))
+
+    def _add_transaction_callbacks(self, transaction):
+        transaction_callbacks = TransactionCallbacks()
+        self.callbacks.add(transaction_callbacks)
+        transaction_callbacks_ptr = libdnf5.rpm.TransactionCallbacksUniquePtr(transaction_callbacks)
+        transaction.set_callbacks(transaction_callbacks_ptr)
+
     def _do_transaction(self, transaction):
-        # Add download / transaction callbacks, triggers
-        # See 'dnf5/test/python3/libdnf5/tutorial/transaction/transaction.py'
+        # Add transaction callbacks like this:
+        # self._add_transaction_callbacks(transaction)
 
         # Download all needed packages
         # Optionally specify the 'download_dir' parameter
@@ -141,6 +168,9 @@ class Dnf5AnsibleUsecases:
         # self._disable_repos(['fedora', 'updates'])
         # self._enable_repos('fedora')
 
+        # Add repository callbacks like this:
+        # self._add_repos_callbacks()
+
         sack.update_and_load_enabled_repos(True)
 
     def list(self, args):
@@ -224,6 +254,31 @@ class Dnf5AnsibleUsecases:
 
         # Execute the transaction
         self._do_transaction(transaction)
+
+
+# Example implementation of repository metadata callbacks
+class RepoCallbacks(libdnf5.repo.RepoCallbacks):
+    def __init__(self, repo_id):
+        self.repo_id = repo_id
+        super().__init__()
+    def end(self, error):
+        if error:
+            print(f'Repo "{self.repo_id}" load error: {error}')
+
+
+# Example implementation of download callbacks
+class PackageDownloadCallbacks(libdnf5.repo.DownloadCallbacks):
+    def mirror_failure(self, user_cb_data, msg, url):
+        print("Mirror failure: ", msg)
+        return 0
+
+
+# Example implementation of transaction events callbacks
+class TransactionCallbacks(libdnf5.rpm.TransactionCallbacks):
+    def install_start(self, item, total):
+        action_string = libdnf5.base.transaction.transaction_item_action_to_string(item.get_action())
+        package_nevra = item.get_package().get_nevra()
+        print(f'{action_string} started for package {package_nevra}')
 
 
 def main():
