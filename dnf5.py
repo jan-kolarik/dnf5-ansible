@@ -157,6 +157,9 @@ class Dnf5AnsibleUsecases:
         # advisory_query.filter_type('bugfix')
         # settings.set_advisory_filter(advisory_query)
 
+        # Apply additional resolve settings, like matching groups by their name:
+        # settings.group_with_name = True
+
         return settings
 
     def _prepare_repos(self):
