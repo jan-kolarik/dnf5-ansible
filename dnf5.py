@@ -105,19 +105,16 @@ class Dnf5AnsibleUsecases:
         return result
 
     def _override_base_conf(self, base):
-        # Note: This is a subject of potential rewrite
-        # See https://github.com/rpm-software-management/dnf5/issues/236
-
         conf = base.get_config()
-        conf.best().set(True)
-        conf.disable_excludes().set([])
-        conf.excludepkgs().set([])
-        conf.gpgcheck().set(False)
-        conf.install_weak_deps().set(True)
-        conf.installroot().set('/root/dir/')
-        conf.repo_gpgcheck().set(False)
-        conf.skip_broken().set(True)
-        conf.sslverify().set(True)
+        conf.best = True
+        conf.disable_excludes = []
+        conf.excludepkgs = []
+        conf.gpgcheck = False
+        conf.install_weak_deps = True
+        conf.installroot = '/root/dir/'
+        conf.repo_gpgcheck = False
+        conf.skip_broken = True
+        conf.sslverify = True
 
         vars = base.get_vars()
         vars.set('releasever', '38')
@@ -126,7 +123,7 @@ class Dnf5AnsibleUsecases:
         base = libdnf5.base.Base()
 
         # Change config file path like this:
-        # base.get_config().config_file_path().set('path')
+        # base.get_config().config_file_path = 'path'
 
         base.load_config_from_file()
 
