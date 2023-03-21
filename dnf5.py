@@ -37,6 +37,7 @@ class Dnf5AnsibleUsecases:
         # Therefore using this helper container...
         self.callbacks = set()
         self.base = self._prepare_base()
+        self._prepare_logging()
         self._prepare_repos()
         # Add download callbacks like this:
         # self._add_downloader_callbacks()
@@ -172,6 +173,15 @@ class Dnf5AnsibleUsecases:
         # self._add_repos_callbacks()
 
         sack.update_and_load_enabled_repos(True)
+
+    def _prepare_logging(self):
+        # Enable logging into file defined in configuration
+        # Add libraries logging with global logger
+        log_router = self.base.get_logger()
+        global_logger = libdnf5.logger.GlobalLogger()
+        global_logger.set(log_router.get(), libdnf5.logger.Logger.Level_DEBUG)
+        logger = libdnf5.logger.create_file_logger(self.base)
+        log_router.add_logger(logger)
 
     def list(self, args):
         """Package listings usecase
