@@ -234,6 +234,17 @@ class Dnf5AnsibleUsecases:
         # Resolve the transaction goal
         transaction = goal.resolve()
 
+        # Print any problems related to package signatures
+        ts_pkgs = transaction.get_transaction_packages()
+        if ts_pkgs:
+            rpm_sign = libdnf5.rpm.RpmSignature(self.base)
+            for ts_pkg in transaction.get_transaction_packages():
+                pkg = ts_pkg.get_package()
+                result = rpm_sign.check_package_signature(pkg)
+                if result != libdnf5.rpm.RpmSignature.CheckResult_OK:
+                    print(f'Failed to validate package signature for "{pkg.get_nevra()}" '
+                          f'with error "{result}".')
+
         # Print any problems during transaction resolving
         if transaction.get_problems():
             print('Following issues happened when resolving the transaction:')
@@ -243,7 +254,6 @@ class Dnf5AnsibleUsecases:
             print('Transaction resolved correctly.')
 
         # Print transaction summary
-        ts_pkgs = transaction.get_transaction_packages()
         if ts_pkgs:
             print('Transaction summary:')
             for pkg in ts_pkgs:
