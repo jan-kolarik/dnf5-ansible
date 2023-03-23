@@ -108,6 +108,7 @@ class Dnf5AnsibleUsecases:
     def _override_base_conf(self, base):
         conf = base.get_config()
         conf.best = True
+        conf.clean_requirements_on_remove = True
         conf.disable_excludes = []
         conf.excludepkgs = []
         conf.gpgcheck = False
@@ -237,6 +238,12 @@ class Dnf5AnsibleUsecases:
         elif cmd == 'absent':
             for spec in specs:
                 goal.add_remove(spec, settings)
+        elif cmd == 'autoremove':
+            query = libdnf5.rpm.PackageQuery(self.base)
+            query.filter_installed()
+            query.filter_unneeded()
+            for pkg in query:
+                goal.add_rpm_remove(pkg, settings)
 
         # Apply behavior modifiers like this:
         # goal.set_allow_erasing(True)
