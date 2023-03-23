@@ -2,17 +2,12 @@ import sys
 import libdnf5
 
 # TODO DNF5 not-implemented features:
-# - some ensure modifiers
-#   - allow_downgrade - now it is always True
-# - autoremove
-#   - listing unneeded pkgs not implemented yet
-#   - https://github.com/rpm-software-management/dnf5/issues/132
-# - cache update
-#   - automatic in DNF5
-#   - any modification needed for the Ansible purposes?
+# - allow_downgrade - now it is always True
+#   - https://github.com/rpm-software-management/dnf5/issues/388
 # - cacheonly
 #   - https://github.com/rpm-software-management/dnf5/issues/191
-# - disable_plugin, enable_plugin
+# - gpg signatures checking and recovery process
+#   - https://github.com/rpm-software-management/dnf5/issues/386
 
 # DNF5 example usecases for the Ansible module
 #
