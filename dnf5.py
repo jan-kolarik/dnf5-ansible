@@ -1,3 +1,4 @@
+import os
 import sys
 import libdnf5
 
@@ -178,6 +179,16 @@ class Dnf5AnsibleUsecases:
         global_logger.set(log_router.get(), libdnf5.logger.Logger.Level_DEBUG)
         logger = libdnf5.logger.create_file_logger(self.base)
         log_router.add_logger(logger)
+
+    def _update_cache(self):
+        # Cleanup the cache to force downloading fresh metadata
+        repo_query = libdnf5.repo.RepoQuery(self.base)
+        repo_query.filter_type(libdnf5.repo.Repo.Type_AVAILABLE)
+        for repo in repo_query:
+            repo_dir = repo.get_cachedir()
+            if os.path.exists(repo_dir):
+                repo_cache = libdnf5.repo.RepoCache(self.base, repo_dir)
+                repo_cache.write_attribute(libdnf5.repo.RepoCache.ATTRIBUTE_EXPIRED)
 
     def list(self, args):
         """Package listings usecase
