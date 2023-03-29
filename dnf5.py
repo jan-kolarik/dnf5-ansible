@@ -190,6 +190,18 @@ class Dnf5AnsibleUsecases:
                 repo_cache = libdnf5.repo.RepoCache(self.base, repo_dir)
                 repo_cache.write_attribute(libdnf5.repo.RepoCache.ATTRIBUTE_EXPIRED)
 
+    def _is_same_or_newer_spec_installed(self, spec):
+        spec_nevra = next(iter(libdnf5.rpm.Nevra.parse(spec)))
+        spec_name = spec_nevra.get_name()
+        spec_evr = f'{spec_nevra.get_epoch()}:{spec_nevra.get_version()}-{spec_nevra.get_release()}'
+
+        query = libdnf5.rpm.PackageQuery(self.base)
+        query.filter_installed()
+        query.filter_name([spec_name])
+        query.filter_evr([spec_evr], libdnf5.common.QueryCmp_GTE)
+
+        return query.size() > 0
+
     def list(self, args):
         """Package listings usecase
 
