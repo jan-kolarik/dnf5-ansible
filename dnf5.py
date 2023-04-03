@@ -282,9 +282,9 @@ class Dnf5AnsibleUsecases:
 
         # Print any problems during transaction resolving
         if transaction.get_problems():
-            print('Following issues happened when resolving the transaction:')
-            for log in transaction.get_resolve_logs_as_strings():
-                print(log)
+            for log_event in transaction.get_resolve_logs():
+                print(f'For spec "{log_event.get_spec()}" an error "{log_event.get_problem()}" occurred during action '
+                      f'"{libdnf5.base.goal_action_to_string(log_event.get_action())}", verbose: "{log_event.to_string()}"')
         else:
             print('Transaction resolved correctly.')
 
